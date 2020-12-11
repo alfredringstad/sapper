@@ -115,6 +115,36 @@ describe('preloading', function() {
 		);
 	});
 
+	it('correctly handles prefetch to current page', async () => {
+		await r.load('/prefetch-current-page');
+		await r.sapper.start();
+		await r.sapper.prefetchRoutes();
+
+		assert.strictEqual(
+			await r.text('h1'),
+			'0'
+		);
+
+		await r.page.click('a[href="/prefetch-current-page/other"]');
+		await r.wait(150);
+
+		await r.page.hover('a[href="/prefetch-current-page"]');
+		await r.wait(150);
+
+		assert.strictEqual(
+			await r.text('h1'),
+			'1'
+		);
+
+		await r.page.click('a[href="/prefetch-current-page/other"]');
+		await r.wait(50);
+
+		assert.strictEqual(
+			await r.text('h1'),
+			'0'
+		);
+	});
+
 	it('survives the tests with no server errors', () => {
 		assert.deepStrictEqual(r.errors, []);
 	});
